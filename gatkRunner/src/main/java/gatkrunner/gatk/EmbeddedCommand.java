@@ -1,4 +1,4 @@
-package com.tmo.gatk;
+package gatkrunner.gatk;
 
 import org.broadinstitute.gatk.engine.CommandLineExecutable;
 import org.broadinstitute.gatk.engine.arguments.GATKArgumentCollection;
