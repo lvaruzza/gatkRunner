@@ -1,25 +1,18 @@
 package gatkrunner.gatk;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.WriterAppender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import cern.jet.math.Functions;
 import utils.reference.GenomeRef;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 
 public class GATKFacade {
@@ -97,6 +90,7 @@ public class GATKFacade {
 	public int combineVariants(GenomeRef reference,Stream<Path> variants,Path output) {
 		Stream<String> varLst = variants.map((Path p) ->Stream.of("-V",p.toString())).flatMap(x -> x);
 		Stream<String> argLst = Stream.concat(varLst,Stream.of("-o",output.toString(),
+											   "--excludeNonVariants",
 											   "-genotypeMergeOptions","UNIQUIFY"));
 		//System.out.println(varLst.collect(Collectors.joining(" ")));
 		return run("CombineVariants",reference,argLst.toArray());

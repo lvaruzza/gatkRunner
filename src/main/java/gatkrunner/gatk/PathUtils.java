@@ -1,8 +1,8 @@
 package gatkrunner.gatk;
 
-import java.nio.file.Path;
-
 import org.apache.commons.io.FilenameUtils;
+
+import java.nio.file.Path;
 
 public class PathUtils {
 
