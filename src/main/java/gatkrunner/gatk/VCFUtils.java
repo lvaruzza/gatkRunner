@@ -1,5 +1,12 @@
 package gatkrunner.gatk;
 
+import htsjdk.tribble.index.Index;
+import htsjdk.tribble.index.IndexFactory;
+import htsjdk.tribble.util.LittleEndianOutputStream;
+import htsjdk.variant.vcf.VCFCodec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,19 +16,11 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import htsjdk.tribble.index.Index;
-import htsjdk.tribble.index.IndexFactory;
-import htsjdk.tribble.util.LittleEndianOutputStream;
-import htsjdk.variant.vcf.VCFCodec;
-
 public class VCFUtils {
 	private static Logger logger = LoggerFactory.getLogger(VCFUtils.class);
 	
 	public static Stream<Path> listVCFFiles(Path variantsDir) throws IOException {
-		PathMatcher vcfMatcher = FileSystems.getDefault().getPathMatcher("glob:*.{vcf,vcf.gz}");
+		PathMatcher vcfMatcher = FileSystems.getDefault().getPathMatcher("glob:*.{vcf,vcf.gz,bcf}");
 		logger.info(String.format("Looking for variants in '%s'", variantsDir.toString()));
 		Stream<Path> variants=Files.list(variantsDir)
 		    	.filter((Path p) -> vcfMatcher.matches(p.getFileName()))
@@ -34,7 +33,15 @@ public class VCFUtils {
 	public static Path indexPath(Path v) {
 		return PathUtils.changeExtension(v,"idx");
 	}
-	
+
+	public static boolean isVCF(Path file) {
+		return PathUtils.checkExtension(file,"vcf");
+	}
+
+	public static boolean isBCF(Path file) {
+		return PathUtils.checkExtension(file,"bcf");
+	}
+
 	public static void indexVCF(Path v)  {
 		try {
 			LittleEndianOutputStream out = new LittleEndianOutputStream(new BufferedOutputStream(new FileOutputStream(indexPath(v).toFile())));
@@ -47,7 +54,7 @@ public class VCFUtils {
 	}
 	
 	public static Stream<Path> assureIndex(Stream<Path> variants) {
-		return variants.filter( v -> !indexPath(v).toFile().exists()).map( v -> {
+		return variants.filter( v -> !indexPath(v).toFile().exists() && !isBCF(v)).map( v -> {
 			indexVCF(v);
 			return v;
 		});

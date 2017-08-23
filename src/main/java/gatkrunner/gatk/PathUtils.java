@@ -1,5 +1,6 @@
 package gatkrunner.gatk;
 
+import com.google.common.io.Files;
 import org.apache.commons.io.FilenameUtils;
 
 import java.nio.file.Path;
@@ -11,4 +12,7 @@ public class PathUtils {
 		return v.resolveSibling(base+"."+ext);
 	}
 
+	public static boolean checkExtension(Path file, String ext) {
+		return Files.getFileExtension(file.toString()).equals(ext);
+	}
 }
