@@ -10,10 +10,8 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.PathMatcher;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.stream.Stream;
 
 public class VCFUtils {
@@ -22,12 +20,25 @@ public class VCFUtils {
 	public static Stream<Path> listVCFFiles(Path variantsDir) throws IOException {
 		PathMatcher vcfMatcher = FileSystems.getDefault().getPathMatcher("glob:*.{vcf,vcf.gz,bcf}");
 		logger.info(String.format("Looking for variants in '%s'", variantsDir.toString()));
-		Stream<Path> variants=Files.list(variantsDir)
+		final  Stream.Builder<Path> builder = Stream.builder();
+
+		/*Stream<Path> variants=Files.list(variantsDir)
 		    	.filter((Path p) -> vcfMatcher.matches(p.getFileName()))
 		        .peek( (Path p) -> logger.info(String.format("Detect variant '%s' matches='%b'", p.toString(),vcfMatcher.matches(p.getFileName()))))
 		    	;
-		
-		return variants;
+		*/
+
+		Files.walkFileTree(variantsDir,new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                    throws IOException
+            {
+                if (vcfMatcher.matches(file.getFileName())) builder.accept(file);
+                return FileVisitResult.CONTINUE;
+            }
+		});
+
+		return builder.build();
 	}
 	
 	public static Path indexPath(Path v) {
