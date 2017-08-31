@@ -4,14 +4,19 @@ import htsjdk.tribble.index.Index;
 import htsjdk.tribble.index.IndexFactory;
 import htsjdk.tribble.util.LittleEndianOutputStream;
 import htsjdk.variant.vcf.VCFCodec;
+import htsjdk.variant.vcf.VCFFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public class VCFUtils {
@@ -40,7 +45,25 @@ public class VCFUtils {
 
 		return builder.build();
 	}
-	
+
+	public static String getSampleName(Path path) {
+        File varFile = path.toFile();
+        VCFFileReader reader = new VCFFileReader(varFile,false);
+        ArrayList<String> names=reader.getFileHeader().getSampleNamesInOrder();
+
+        if(names.size()>1) throw new RuntimeException(String.format("File '%s' is a multisamples VCF",path.toString()));
+
+        return names.get(0);
+    }
+
+	public static Map<String,String> makeSamplesDictionary(Stream<Path> files) {
+		Map<String,String> m = new HashMap<String,String>();
+
+        files.forEach( p -> m.put(getSampleName(p),p.getFileName().toString()));
+
+		return m;
+    }
+
 	public static Path indexPath(Path v) {
 		return PathUtils.changeExtension(v,"idx");
 	}
