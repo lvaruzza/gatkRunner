@@ -8,6 +8,13 @@ public class TestHelp {
 
     @Test
     public void showHelp() {
-        gatk.showHelp();
+        //gatk.showHelp();
+
+        EmbeddedCommand instance = new EmbeddedCommand();
+        try  {
+            EmbeddedCommand.start(instance, new String[]{"-T","CombineVariants"});
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 }

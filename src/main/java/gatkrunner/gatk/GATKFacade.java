@@ -64,7 +64,6 @@ public class GATKFacade {
 		WriterAppender appender = new WriterAppender(new org.apache.log4j.SimpleLayout(), log4jout);
 		org.apache.log4j.Logger.getRootLogger().addAppender(appender);
 
-
 		logger.info(String.format("Running gatk. args=[%s]", StringUtils.join(args, ' ')));
 		EmbeddedCommand instance = new EmbeddedCommand();
 		try {
@@ -111,8 +110,15 @@ public class GATKFacade {
 
 
 	public void showHelp() {
-		runThread("-h");
+		EmbeddedCommand instance = new EmbeddedCommand();
+		try  {
+			EmbeddedCommand.start(instance, new String[]{"-h"});
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+
 	}
+
 	public void combineVariants(GenomeRef reference, Path variantsDir, Path output) throws IOException {
 		combineVariants(reference,VCFUtils.listVCFFiles(variantsDir),output);
 	}
