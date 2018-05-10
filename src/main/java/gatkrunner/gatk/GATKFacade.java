@@ -110,6 +110,9 @@ public class GATKFacade {
 	}
 
 
+	public void showHelp() {
+		runThread("-h");
+	}
 	public void combineVariants(GenomeRef reference, Path variantsDir, Path output) throws IOException {
 		combineVariants(reference,VCFUtils.listVCFFiles(variantsDir),output);
 	}
